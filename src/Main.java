@@ -3,6 +3,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -27,14 +28,26 @@ public class Main {
         }
         for (int i = 0; i < stocks.size(); i++) {
             StockPrice currentStock = stocks.get(i);
-            String symbol = currentStock.getSymbol();
+            String symbol = currentStock.getSymbol(); 
             if (!priceRecords.containsKey(symbol)) {
                 priceRecords.put(symbol, new ArrayList<>());
             }
             priceRecords.get(symbol).add(currentStock);
         }
         for (String symbol : priceRecords.keySet()) {
-            System.out.println(symbol + ": " + priceRecords.get(symbol).size() + " records");
+            ArrayList<StockPrice> current = priceRecords.get(symbol);
+            current.sort(Comparator.comparing((StockPrice s) -> s.getDate()));
+        }
+        for (String symbol : priceRecords.keySet()) {
+            ArrayList<StockPrice> current = priceRecords.get(symbol);
+            double totalReturn = StockStats.calculateTotalReturn(current);
+            System.out.printf("%s total return: %.2f%%%n", symbol, totalReturn);
+            System.out.println(symbol + ": " + current.size() + " records ");
+            for(int i = 0; i < current.size(); i++) {
+                String dateString = current.get(i).getDate().toString();
+                System.out.println("Date " + i + ": " + dateString);
+            }
+
         }
         System.out.println(stocks.size());
     }
