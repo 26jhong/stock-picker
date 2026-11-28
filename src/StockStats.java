@@ -26,12 +26,16 @@ public class StockStats {
         LocalDate start = stocks.get(0).getDate();
         LocalDate end = stocks.get(stocks.size() - 1).getDate();
         double yearsBetween = ChronoUnit.DAYS.between(start, end) / 365.25;
+        if(yearsBetween <= 0) {
+            throw new IllegalArgumentException("The ending date must be after the starting date.");
+        }
         return (Math.pow(lastPrice / firstPrice, 1.0 / yearsBetween) - 1) * 100;
     }
+
     // Volitality = how much returns flucate 
     public static double calculateVolatility(ArrayList<StockPrice> stocks) {
         if(stocks.size() < 3) {
-            throw new IllegalArgumentException("At least two price records are required.");
+            throw new IllegalArgumentException("At least three price records are required.");
         }
         ArrayList<Double> returns = new ArrayList<>(); 
         double average = 0;
