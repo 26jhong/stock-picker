@@ -59,5 +59,35 @@ public class StockStats {
         populationVariance = sumSquaredDifference / returns.size();
         return Math.sqrt(populationVariance) * 100;
     }
+    // Recent Return = calculates how much the price changed during the latest three months
+    // utilized for the short term filter.
+    public static double recentReturn(ArrayList<StockPrice> stocks) {
+        if(stocks.size() < 2) {
+            throw new IllegalArgumentException("At least two price records are required.");
+        }
+        StockPrice latestRecord = stocks.get(stocks.size() - 1);
+        for(StockPrice stock : stocks) {
+            if(stock.getDate().isAfter(latestRecord.getDate())) {
+                latestRecord = stock;
+            }
+        }
+        
+        LocalDate threeMonthsAgo = latestRecord.getDate().minusMonths(3);
+        long minDiff = Long.MAX_VALUE;
+        StockPrice closest = null;
+
+        for (StockPrice stock : stocks) {
+            long diff = Math.abs(ChronoUnit.DAYS.between(threeMonthsAgo, stock.getDate()));
+            if (diff < minDiff) {
+                minDiff = diff;
+                closest = stock;
+            }
+        }
+        if(closest == null) {
+            throw new IllegalArgumentException("Not enough history to calculate a three-month return.");
+        }
+
+        return ((latestRecord.getClose() - closest.getClose()) / closest.getClose()) * 100;
+    }
 
 }
